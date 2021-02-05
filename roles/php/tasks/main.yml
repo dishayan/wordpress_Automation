@@ -1,0 +1,9 @@
+- name: Add REMI Repository
+  yum:
+    name: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    state: present
+- name: Install package with multiple repos enabled
+  yum:
+    name: php
+    enablerepo: "remi-php74"
+    state: present

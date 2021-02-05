@@ -1,0 +1,13 @@
+   - name: Start and Enable NTP service
+     service:
+       name: ntpd
+       state: started
+       enabled: yes
+   - name: Configure NTP servers to use Singaporean ones
+     copy:
+       src: files/ntp_centos.conf
+       dest: /etc/ntp.conf
+       backup: yes
+     notify:
+       - restart ntp
+

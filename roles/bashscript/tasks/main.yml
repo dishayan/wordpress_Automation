@@ -1,0 +1,6 @@
+- name: Transfer the script
+  copy: src=files/bashscript.sh dest=/var/tmp mode=0755
+
+- name: Execute the script
+  command: sh /var/tmp/bashscript.sh
+

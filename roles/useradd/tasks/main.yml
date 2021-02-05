@@ -1,0 +1,27 @@
+   - name: Add group " johndoegroup" to remote server
+     group:
+       name:  johndoegroup
+       gid: 2000
+       state: present
+
+   - name: Add user " johndoe" to remote server
+     user:
+       name:  johndoe
+       comment: "Privileged User"
+       uid: 2001
+       group: johndoegroup
+       append: yes
+       shell: /bin/bash
+       generate_ssh_key: yes
+       ssh_key_bits: 2048
+       ssh_key_file: .ssh/id_rsa
+   - name: update the system
+     yum:
+       name: "*"
+       state: latest
+   - name: Install all the packages
+     yum:
+       name: ['screen', 'vim', 'htop', 'git', 'atop', 'ntp', 'unbound', 'monit', 'wget', 'python-pip']
+       state: present
+       update_cache: True
+

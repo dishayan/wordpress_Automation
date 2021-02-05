@@ -1,0 +1,53 @@
+# MySQL Configuration
+    - name: Install Percona yum repository
+      yum:
+        name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+        state: present
+
+    - name: Install Percona
+      yum:
+        name: ['Percona-Server-server-57', 'Percona-Server-devel-57']
+        state: present
+        update_cache: True
+    - name: Install the Python MySQLB module
+      yum:
+        name: MySQL-python
+
+    - name: Ensure MySQL is up-and-running
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+ 
+# Write password to root home as readable only by root so future mysql
+# operations can function.
+    - shell: cat /var/log/mysqld.log | grep "temporary password" | grep -oE '[^ ]+$'
+      register: tmp_root_password
+    
+    - name: Detect and properly set root password
+      stat:
+        path: /root/.my.cnf
+      register: r
+    - mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+      when: r.stat.exists==True
+    - name: Set new password from temporary password
+      shell: 'mysql -e "SET PASSWORD = PASSWORD(''{{ mysql_root_password }}'');" --connect-expired-password -uroot -p"{{ tmp_root_password.stdout }}"'
+      when: r.stat.exists==False
+
+    - name: Creates database for WordPress
+      mysql_db:
+        name: "{{ mysql_db }}"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+ 
+    - name: Create MySQL user for WordPress
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: "{{ mysql_db }}.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"

@@ -1,0 +1,18 @@
+# Firewall Configuration
+    - name: Disable SELinux Permanently (Reboot Required)
+      selinux: state=disabled
+ 
+    - name: Disable SELinux Without Reboot
+      command: /sbin/setenforce 0
+ 
+    - name: Install all the packages required for firewall module
+      yum:
+        name: ['dbus-glib-devel', 'dbus-glib', 'python-slip-dbus', 'dbus-python', 'firewalld']
+        state: present
+        update_cache: True
+
+    - name: Configure Firewall
+      firewalld: zone=public service=http permanent=yes state=enabled
+ 
+    - name: Reload Firewall
+      systemd: name=firewalld state=reloaded
